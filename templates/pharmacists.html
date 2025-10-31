@@ -1,0 +1,91 @@
+{% extends "base.html" %} {% block title %}Pharmacists - Allo Health{% endblock
+%} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div
+  class="page-header"
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  "
+>
+  <div>
+    <h1 class="page-title"><i class="fas fa-pills"></i> Pharmacists</h1>
+    <p class="page-subtitle">Manage pharmacy staff</p>
+  </div>
+  <a href="{{ url_for('pharmacist_new') }}" class="btn btn-primary"
+    ><i class="fas fa-user-plus"></i> Add Pharmacist</a
+  >
+</div>
+
+<!-- Pharmacists List -->
+<div class="card">
+  {% if pharmacists %}
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th><i class="fas fa-user"></i> Name</th>
+          <th><i class="fas fa-id-card"></i> Employee No.</th>
+          <th><i class="fas fa-envelope"></i> Email</th>
+          <th><i class="fas fa-check-circle"></i> Status</th>
+          <th><i class="fas fa-cogs"></i> Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pharmacist in pharmacists %}
+        <tr>
+          <td><strong>{{ pharmacist.full_name }}</strong></td>
+          <td>{{ pharmacist.emp_no }}</td>
+          <td>{{ pharmacist.email }}</td>
+          <td>
+            <span
+              class="badge {% if pharmacist.is_active %}badge-success{% else %}badge-danger{% endif %}"
+            >
+              {% if pharmacist.is_active %}<i class="fas fa-check-circle"></i>
+              Active{% else %}<i class="fas fa-ban"></i> Inactive{% endif %}
+            </span>
+          </td>
+          <td>
+            <form
+              method="POST"
+              action="{{ url_for('pharmacist_toggle_active', id=pharmacist.id) }}"
+              style="display: inline"
+            >
+              <button
+                type="submit"
+                class="btn btn-sm {% if pharmacist.is_active %}btn-warning{% else %}btn-success{% endif %}"
+              >
+                {% if pharmacist.is_active %}<i class="fas fa-ban"></i>
+                Deactivate{% else %}<i class="fas fa-check"></i> Activate{%
+                endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align: center; padding: 3rem; color: var(--text-gray)">
+    <i
+      class="fas fa-inbox"
+      style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5"
+    ></i>
+    <p style="font-size: 1.1rem">No pharmacists found.</p>
+    <a
+      href="{{ url_for('pharmacist_new') }}"
+      style="color: var(--primary-purple); font-weight: 600"
+      ><i class="fas fa-user-plus"></i> Add new pharmacist</a
+    >
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

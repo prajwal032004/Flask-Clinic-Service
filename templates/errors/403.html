@@ -1,0 +1,21 @@
+{% extends "layout.html" %} {% block title %}403 Forbidden{% endblock %} {%
+block content %}
+<div style="text-align: center; padding: 4rem 1rem">
+  <h1 style="font-size: 5rem; color: var(--primary-purple); margin-bottom: 0">
+    403
+  </h1>
+  <h2 style="font-size: 2rem; color: var(--text-dark); margin-top: 0">
+    Access Forbidden
+  </h2>
+  <p style="color: var(--text-gray); max-width: 500px; margin: 1rem auto">
+    You do not have permission to view this page. Please contact an
+    administrator if you believe this is an error.
+  </p>
+  <a
+    href="{{ url_for('dashboard') }}"
+    class="btn btn-primary"
+    style="margin-top: 1.5rem"
+    >Go to Dashboard</a
+  >
+</div>
+{% endblock %}

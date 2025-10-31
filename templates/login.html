@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Allo Health</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-purple: #433393;
+        --primary-light: #6e42e5;
+        --primary-dark: #2d2366;
+        --bg-cream: #fffcf6;
+        --text-dark: #0f0f0f;
+        --text-gray: #6b7280;
+        --border-gray: #e5e5e5;
+        --error: #ef4444;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          var(--primary-purple),
+          var(--primary-light)
+        );
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .login-container {
+        width: 100%;
+        max-width: 450px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(67, 51, 147, 0.2);
+        padding: 3rem 2rem;
+        animation: slideIn 0.4s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .login-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-purple);
+        margin-bottom: 1.5rem;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .login-logo svg {
+        width: 40px;
+        height: 40px;
+      }
+
+      .login-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .login-subtitle {
+        color: var(--text-gray);
+        font-size: 0.95rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 2.5rem;
+        border: 2px solid var(--border-gray);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-family: "Inter", sans-serif;
+        transition: all 0.2s;
+        background: white;
+        position: relative;
+      }
+
+      .form-group {
+        position: relative;
+      }
+
+      .form-group i {
+        position: absolute;
+        left: 1rem;
+        top: 2.5rem;
+        color: var(--primary-purple);
+        pointer-events: none;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 3px rgba(67, 51, 147, 0.1);
+      }
+
+      .form-control::placeholder {
+        color: #9ca3af;
+      }
+
+      .btn-login {
+        width: 100%;
+        padding: 0.875rem;
+        background: var(--primary-purple);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 1rem;
+        font-family: "Inter", sans-serif;
+      }
+
+      .btn-login:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(67, 51, 147, 0.3);
+      }
+
+      .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+      }
+
+      .alert-info {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+      }
+
+      .login-footer {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-gray);
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-gray);
+      }
+
+      .login-footer strong {
+        color: var(--primary-purple);
+      }
+
+      @media (max-width: 480px) {
+        .login-container {
+          padding: 2rem 1.5rem;
+        }
+
+        .login-title {
+          font-size: 1.5rem;
+        }
+
+        .form-control {
+          padding: 0.75rem 1rem 0.75rem 2.25rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="login-container">
+      <div class="login-header">
+        <div class="login-logo">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"
+            />
+            <path
+              d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"
+              fill="white"
+            />
+          </svg>
+          Allo Health
+        </div>
+        <h1 class="login-title"><i class="fas fa-sign-in-alt"></i> Welcome</h1>
+        <p class="login-subtitle">Sign in to your hospital account</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category if category in ['danger', 'info'] else 'info' }}"
+      >
+        <i
+          class="fas fa-{% if category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"
+        ></i>
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form method="POST" class="login-form">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+          <i class="fas fa-id-card"></i>
+          {{ form.emp_no.label(class="form-label") }} {{
+          form.emp_no(class="form-control", placeholder="Enter your employee
+          number") }} {% if form.emp_no.errors %}
+          <div
+            style="
+              color: var(--error);
+              font-size: 0.875rem;
+              margin-top: 0.25rem;
+            "
+          >
+            <i class="fas fa-exclamation-circle"></i> {% for error in
+            form.emp_no.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <i class="fas fa-lock"></i>
+          {{ form.password.label(class="form-label") }} {{
+          form.password(class="form-control", placeholder="Enter your password")
+          }} {% if form.password.errors %}
+          <div
+            style="
+              color: var(--error);
+              font-size: 0.875rem;
+              margin-top: 0.25rem;
+            "
+          >
+            <i class="fas fa-exclamation-circle"></i> {% for error in
+            form.password.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn-login">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>
+          <i class="fas fa-user-secret"></i> Demo Credentials:<br />
+          Employee No: <strong>admin</strong> | Password:
+          <strong>admin123</strong>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

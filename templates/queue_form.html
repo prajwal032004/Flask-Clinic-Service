@@ -1,0 +1,134 @@
+{% extends "base.html" %} {% block title %}Add to Queue - Allo Health{% endblock
+%} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-plus-circle"></i> Add Patient to Queue
+  </h1>
+</div>
+
+<div class="card" style="max-width: 700px">
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      <label class="form-label"><i class="fas fa-user"></i> Patient</label>
+      <div
+        style="
+          display: grid;
+          gap: 1rem;
+          background: var(--bg-soft);
+          padding: 1rem;
+          border-radius: 10px;
+        "
+      >
+        <div>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              margin-bottom: 0.75rem;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="radio"
+              name="patient_type"
+              value="existing"
+              checked
+              onchange="togglePatientType()"
+            />
+            <span
+              ><strong
+                ><i class="fas fa-user-check"></i> Select Existing
+                Patient</strong
+              ></span
+            >
+          </label>
+          {{ form.patient_id(class="form-control", id="existing_patient") }}
+        </div>
+        <div>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              margin-bottom: 0.75rem;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="radio"
+              name="patient_type"
+              value="walkin"
+              onchange="togglePatientType()"
+            />
+            <span
+              ><strong
+                ><i class="fas fa-user-secret"></i> Walk-in Patient</strong
+              ></span
+            >
+          </label>
+          {{ form.walk_in_name(class="form-control", placeholder="Patient name",
+          id="walkin_name", style="display: none;") }} {{
+          form.walk_in_phone(class="form-control", placeholder="Patient phone",
+          id="walkin_phone", style="display: none;") }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      {{ form.doctor_id.label(class="form-label") }} {{
+      form.doctor_id(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+      {{ form.priority.label(class="form-label") }} {{
+      form.priority(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+      {{ form.notes.label(class="form-label") }} {{
+      form.notes(class="form-control", placeholder="Additional notes...") }}
+    </div>
+
+    <div style="display: flex; gap: 1rem">
+      <button type="submit" class="btn btn-primary" style="flex: 1">
+        <i class="fas fa-plus"></i> Add to Queue
+      </button>
+      <a
+        href="{{ url_for('queue') }}"
+        class="btn btn-secondary"
+        style="flex: 1; text-align: center"
+        ><i class="fas fa-times"></i> Cancel</a
+      >
+    </div>
+  </form>
+</div>
+
+<script>
+  function togglePatientType() {
+    const patientId = document.getElementById("existing_patient");
+    const walkInName = document.getElementById("walkin_name");
+    const walkInPhone = document.getElementById("walkin_phone");
+    const patientType = document.querySelector(
+      'input[name="patient_type"]:checked'
+    ).value;
+
+    if (patientType === "existing") {
+      patientId.style.display = "block";
+      walkInName.style.display = "none";
+      walkInPhone.style.display = "none";
+    } else {
+      patientId.style.display = "none";
+      walkInName.style.display = "block";
+      walkInPhone.style.display = "block";
+    }
+  }
+</script>
+{% endblock %}

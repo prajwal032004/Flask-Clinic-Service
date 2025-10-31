@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}Prescription History - Allo Health{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+<style>
+  .filter-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .filter-section {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .pagination a,
+  .pagination span {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-gray);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--primary-purple);
+    transition: all 0.2s;
+  }
+
+  .pagination a:hover {
+    background: var(--primary-purple);
+    color: white;
+  }
+
+  .pagination .active {
+    background: var(--primary-purple);
+    color: white;
+    border-color: var(--primary-purple);
+  }
+
+  .pagination .disabled {
+    color: var(--text-gray);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-history"></i> Prescription History
+  </h1>
+  <p class="page-subtitle">View all issued and dispensed prescriptions</p>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-4" style="margin-bottom: 2rem;">
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.total_issued }}</div>
+        <div class="stat-label">Total Issued</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-prescription-bottle" style="color: var(--primary-purple);"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.total_dispensed }}</div>
+        <div class="stat-label">Total Dispensed</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-check-circle" style="color: var(--primary-purple);"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.today_dispensed }}</div>
+        <div class="stat-label">Dispensed Today</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-calendar-check" style="color: var(--primary-purple);"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ prescriptions.total }}</div>
+        <div class="stat-label">Total Records</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-list" style="color: var(--primary-purple);"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 2rem;">
+  <form method="GET" style="display: flex; flex-direction: column; gap: 1rem;">
+    <div class="filter-section">
+      <div>
+        <label class="form-label">Search Patient</label>
+        <input
+          type="text"
+          name="search"
+          class="form-control"
+          placeholder="Patient name or phone"
+          value="{{ search }}"
+        />
+      </div>
+
+      <div>
+        <label class="form-label">Status</label>
+        <select name="status" class="form-control">
+          <option value="">All Status</option>
+          <option value="Issued" {% if status_filter == 'Issued' %}selected{% endif %}>
+            Issued (Pending)
+          </option>
+          <option value="Dispensed" {% if status_filter == 'Dispensed' %}selected{% endif %}>
+            Dispensed
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label">From Date</label>
+        <input
+          type="date"
+          name="date_from"
+          class="form-control"
+          value="{{ date_from }}"
+        />
+      </div>
+
+      <div>
+        <label class="form-label">To Date</label>
+        <input
+          type="date"
+          name="date_to"
+          class="form-control"
+          value="{{ date_to }}"
+        />
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem;">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-search"></i> Search
+      </button>
+      <a href="{{ url_for('pharmacy_prescription_history') }}" class="btn btn-secondary">
+        <i class="fas fa-redo"></i> Reset
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Prescriptions Table -->
+<div class="card">
+  {% if prescriptions.items %}
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th><i class="fas fa-id-card"></i> Rx ID</th>
+          <th><i class="fas fa-user"></i> Patient</th>
+          <th><i class="fas fa-phone"></i> Phone</th>
+          <th><i class="fas fa-user-md"></i> Doctor</th>
+          <th><i class="fas fa-calendar"></i> Issued Date</th>
+          <th><i class="fas fa-info-circle"></i> Status</th>
+          <th><i class="fas fa-cogs"></i> Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rx in prescriptions.items %}
+        <tr>
+          <!-- Prescription ID -->
+          <td><strong>#{{ rx.id }}</strong></td>
+
+          <!-- Patient Name (Registered or Walk-in) -->
+          <td>
+            {% if rx.patient %}
+            <strong>{{ rx.patient.name }}</strong>
+            <br />
+            <small style="color: var(--text-gray);">Registered</small>
+            {% else %}
+            <strong>{{ rx.walk_in_name }}</strong>
+            <br />
+            <small style="color: var(--text-gray);">Walk-in</small>
+            {% endif %}
+          </td>
+
+          <!-- Phone Number -->
+          <td>
+            {% if rx.patient %} {{ rx.patient.phone }} {% else %} {{ rx.walk_in_phone }}
+            {% endif %}
+          </td>
+
+          <!-- Doctor Name -->
+          <td>
+            <strong>Dr. {{ rx.doctor.user.full_name }}</strong>
+            <br />
+            <small>{{ rx.doctor.specialization }}</small>
+          </td>
+
+          <!-- Issued Date -->
+          <td>
+            {{ rx.created_at.strftime('%b %d, %Y') }}
+            <br />
+            <small>{{ rx.created_at.strftime('%I:%M %p') }}</small>
+          </td>
+
+          <!-- Status -->
+          <td>
+            {% if rx.status == 'Issued' %}
+            <span
+              class="badge badge-warning"
+              style="background: var(--primary-purple); padding: 0.5rem 0.75rem;"
+            >
+              <i class="fas fa-clock"></i> Pending
+            </span>
+            {% elif rx.status == 'Dispensed' %}
+            <span
+              class="badge badge-success"
+              style="background: #28a745; padding: 0.5rem 0.75rem;"
+            >
+              <i class="fas fa-check-circle"></i> Dispensed
+            </span>
+            {% endif %}
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <a
+              href="{{ url_for('pharmacy_prescription_view', id=rx.id) }}"
+              class="btn btn-sm btn-secondary"
+              title="View Details"
+            >
+              <i class="fas fa-eye"></i> View
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if prescriptions.pages > 1 %}
+  <div class="pagination">
+    {% if prescriptions.has_prev %}
+    <a href="{{ url_for('pharmacy_prescription_history', page=prescriptions.prev_num, search=search, status=status_filter, date_from=date_from, date_to=date_to) }}">
+      <i class="fas fa-chevron-left"></i> Previous
+    </a>
+    {% else %}
+    <span class="disabled">
+      <i class="fas fa-chevron-left"></i> Previous
+    </span>
+    {% endif %}
+
+    {% for page_num in prescriptions.iter_pages() %} {% if page_num %}
+    {% if page_num == prescriptions.page %}
+    <span class="active">{{ page_num }}</span>
+    {% else %}
+    <a
+      href="{{ url_for('pharmacy_prescription_history', page=page_num, search=search, status=status_filter, date_from=date_from, date_to=date_to) }}"
+    >
+      {{ page_num }}
+    </a>
+    {% endif %} {% else %}
+    <span>...</span>
+    {% endif %} {% endfor %}
+
+    {% if prescriptions.has_next %}
+    <a href="{{ url_for('pharmacy_prescription_history', page=prescriptions.next_num, search=search, status=status_filter, date_from=date_from, date_to=date_to) }}">
+      Next <i class="fas fa-chevron-right"></i>
+    </a>
+    {% else %}
+    <span class="disabled">
+      Next <i class="fas fa-chevron-right"></i>
+    </span>
+    {% endif %}
+  </div>
+  {% endif %} {% else %}
+  <div
+    style="text-align: center; padding: 3rem; color: var(--text-gray);"
+  >
+    <i
+      class="fas fa-inbox"
+      style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"
+    ></i>
+    <p><strong>No prescriptions found.</strong></p>
+    <small>Try adjusting your search filters.</small>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

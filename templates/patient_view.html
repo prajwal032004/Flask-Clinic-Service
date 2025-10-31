@@ -1,0 +1,214 @@
+{% extends "base.html" %} {% block title %}Patient - {{ patient.name }} - Allo
+Health{% endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div
+  class="page-header"
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  "
+>
+  <div>
+    <h1 class="page-title">
+      <i class="fas fa-user-circle"></i> {{ patient.name }}
+    </h1>
+    <p class="page-subtitle">
+      <i class="fas fa-id-card"></i> Patient ID: #{{ patient.id }}
+    </p>
+  </div>
+  <a href="{{ url_for('patient_edit', id=patient.id) }}" class="btn btn-primary"
+    ><i class="fas fa-edit"></i> Edit</a
+  >
+</div>
+
+<!-- Patient Info Card -->
+<div class="card" style="margin-bottom: 2rem">
+  <div class="card-header">
+    <h2 class="card-title">
+      <i class="fas fa-info-circle"></i> Personal Information
+    </h2>
+  </div>
+  <div class="card-body">
+    <div class="grid grid-cols-2">
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <i class="fas fa-phone"></i> Phone
+        </p>
+        <p style="font-weight: 600">{{ patient.phone }}</p>
+      </div>
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <i class="fas fa-envelope"></i> Email
+        </p>
+        <p style="font-weight: 600">{{ patient.email or 'Not provided' }}</p>
+      </div>
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <i class="fas fa-birthday-cake"></i> Age
+        </p>
+        <p style="font-weight: 600">{{ patient.age or 'Not provided' }}</p>
+      </div>
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <i class="fas fa-venus-mars"></i> Gender
+        </p>
+        <p style="font-weight: 600">{{ patient.gender or 'Not provided' }}</p>
+      </div>
+    </div>
+    {% if patient.address %}
+    <div
+      style="
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-gray);
+      "
+    >
+      <p
+        style="
+          color: var(--text-gray);
+          font-size: 0.9rem;
+          margin-bottom: 0.25rem;
+        "
+      >
+        <i class="fas fa-map-marker-alt"></i> Address
+      </p>
+      <p style="font-weight: 600">{{ patient.address }}</p>
+    </div>
+    {% endif %} {% if patient.notes %}
+    <div
+      style="
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-gray);
+      "
+    >
+      <p
+        style="
+          color: var(--text-gray);
+          font-size: 0.9rem;
+          margin-bottom: 0.25rem;
+        "
+      >
+        <i class="fas fa-clipboard"></i> Medical Notes
+      </p>
+      <p style="font-weight: 600; white-space: pre-wrap">{{ patient.notes }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Appointments -->
+<div class="card" style="margin-bottom: 2rem">
+  <div class="card-header">
+    <h2 class="card-title">
+      <i class="fas fa-calendar-check"></i> Appointments ({{ appointments|length
+      }})
+    </h2>
+  </div>
+  <div class="card-body">
+    {% if appointments %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-calendar"></i> Date & Time</th>
+            <th><i class="fas fa-user-md"></i> Doctor</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apt in appointments %}
+          <tr>
+            <td>{{ apt.appointment_datetime.strftime('%d-%m-%Y %H:%M') }}</td>
+            <td>Dr. {{ apt.doctor.user.full_name }}</td>
+            <td>
+              <span class="badge badge-{{ apt.status|status_badge }}">
+                <i class="fas fa-check-circle"></i> {{ apt.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color: var(--text-gray); text-align: center; padding: 2rem">
+      <i class="fas fa-inbox"></i> No appointments scheduled.
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Prescriptions -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">
+      <i class="fas fa-prescription-bottle"></i> Prescriptions ({{
+      prescriptions|length }})
+    </h2>
+  </div>
+  <div class="card-body">
+    {% if prescriptions %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-calendar"></i> Date</th>
+            <th><i class="fas fa-user-md"></i> Doctor</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rx in prescriptions %}
+          <tr>
+            <td>{{ rx.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+            <td>Dr. {{ rx.doctor.user.full_name }}</td>
+            <td>
+              <span class="badge badge-{{ rx.status|status_badge }}">
+                <i class="fas fa-check"></i> {{ rx.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color: var(--text-gray); text-align: center; padding: 2rem">
+      <i class="fas fa-inbox"></i> No prescriptions.
+    </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

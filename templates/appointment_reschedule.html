@@ -1,0 +1,64 @@
+{% extends "base.html" %} {% block title %}Reschedule Appointment - Hospital
+Management{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title">Reschedule Appointment #{{ appointment.id }}</h1>
+  <p class="page-subtitle">Select a new date and time for the appointment.</p>
+</div>
+
+<div class="card" style="max-width: 700px; margin: 0 auto">
+  <div class="card-header">
+    <h2 class="card-title">Current Appointment Details</h2>
+  </div>
+  <div
+    class="card-body"
+    style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem"
+  >
+    <p><strong>Patient:</strong> {{ appointment.patient.name }}</p>
+    <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.name }}</p>
+    <p>
+      <strong>Current Time:</strong>
+      <span style="text-decoration: line-through"
+        >{{ appointment.appointment_datetime|datetime_format }}</span
+      >
+    </p>
+  </div>
+</div>
+
+<div class="card" style="max-width: 700px; margin: 2rem auto 0">
+  <div class="card-header">
+    <h2 class="card-title">Select New Date & Time</h2>
+  </div>
+  <div class="card-body" style="padding: 1.5rem">
+    <form
+      method="POST"
+      action="{{ url_for('appointment_reschedule', id=appointment.id) }}"
+    >
+      <div class="form-group">
+        <label for="new_datetime" class="form-label"
+          >New Appointment Time</label
+        >
+        <input
+          type="datetime-local"
+          id="new_datetime"
+          name="new_datetime"
+          class="form-control"
+          required
+        />
+      </div>
+      <div
+        style="
+          display: flex;
+          justify-content: flex-end;
+          gap: 1rem;
+          margin-top: 1.5rem;
+        "
+      >
+        <a href="{{ url_for('appointments') }}" class="btn btn-secondary"
+          >Cancel</a
+        >
+        <button type="submit" class="btn btn-primary">Reschedule</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

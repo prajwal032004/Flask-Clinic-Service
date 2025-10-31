@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Appointments - Allo Health{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 class="page-title"><i class="fas fa-calendar-alt"></i> Appointments</h1>
+    <p class="page-subtitle">Manage all appointments</p>
+  </div>
+  <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{{ url_for('appointment_new') }}" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+    <a href="{{ url_for('appointments_export') }}" class="btn btn-secondary"><i class="fas fa-download"></i> Export</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 2rem;">
+  <form method="GET" style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end;">
+    <div style="grid-column: 1;">
+      <label class="form-label"><i class="fas fa-filter"></i> Status</label>
+      <select name="status" class="form-control">
+        <option value="">All Statuses</option>
+        <option value="Booked" {% if status_filter == 'Booked' %}selected{% endif %}>Booked</option>
+        <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+        <option value="Canceled" {% if status_filter == 'Canceled' %}selected{% endif %}>Canceled</option>
+      </select>
+    </div>
+
+    <div style="grid-column: 2;">
+      <label class="form-label"><i class="fas fa-calendar"></i> Date</label>
+      <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+    </div>
+
+    <div style="grid-column: 3;">
+      <label class="form-label"><i class="fas fa-user-md"></i> Doctor</label>
+      <select name="doctor" class="form-control">
+        <option value="">All Doctors</option>
+        {% for doc in doctors %}
+          <option value="{{ doc.id }}" {% if doctor_filter == doc.id|string %}selected{% endif %}>Dr. {{ doc.user.full_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div style="grid-column: 4;">
+      <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-search"></i> Filter</button>
+    </div>
+  </form>
+</div>
+
+<!-- Appointments Table -->
+<div class="card">
+  {% if appointments %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-calendar"></i> Date & Time</th>
+            <th><i class="fas fa-user"></i> Patient</th>
+            <th><i class="fas fa-user-md"></i> Doctor</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
+            <th><i class="fas fa-cogs"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apt in appointments %}
+          <tr>
+            <td><strong>{{ apt.appointment_datetime|datetime_format }}</strong></td>
+            <td>{{ apt.patient.name }}</td>
+            <td>Dr. {{ apt.doctor.user.full_name }}</td>
+            <td><span class="badge badge-{{ apt.status|status_badge }}">
+              {% if apt.status == 'Booked' %}
+                <i class="fas fa-hourglass-half"></i>
+              {% elif apt.status == 'Completed' %}
+                <i class="fas fa-check"></i>
+              {% elif apt.status == 'Canceled' %}
+                <i class="fas fa-times"></i>
+              {% endif %}
+              {{ apt.status }}
+            </span></td>
+            <td>
+              {% if apt.status == 'Booked' %}
+                <a href="{{ url_for('appointment_reschedule', id=apt.id) }}" class="btn btn-sm btn-secondary"><i class="fas fa-redo"></i> Reschedule</a>
+                <form method="POST" action="{{ url_for('appointment_complete', id=apt.id) }}" style="display: inline;">
+                  <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check"></i> Complete</button>
+                </form>
+                <form method="POST" action="{{ url_for('appointment_cancel', id=apt.id) }}" style="display: inline;" onsubmit="return confirm('Cancel this appointment?');">
+                  <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Cancel</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-gray);">
+      <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+      <p>No appointments found.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

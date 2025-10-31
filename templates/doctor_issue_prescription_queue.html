@@ -1,0 +1,167 @@
+{% extends "base.html" %} {% block title %}Issue Prescription - Allo Health{%
+endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-prescription-bottle"></i> Issue Prescription
+  </h1>
+  <p class="page-subtitle">
+    Queue #{{ queue_entry.queue_number }} - Completed Consultation
+  </p>
+</div>
+
+<!-- Patient Information Card -->
+<div class="card" style="margin-bottom: 2rem">
+  <div class="card-header">
+    <h2 class="card-title"><i class="fas fa-user"></i> Patient Information</h2>
+  </div>
+  <div class="card-body">
+    <div class="grid grid-cols-2" style="gap: 1rem; margin-bottom: 1rem">
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <strong>Patient Name</strong>
+        </p>
+        <p style="font-size: 1.125rem; font-weight: 600">
+          {{ queue_entry.get_patient_name() }}
+        </p>
+      </div>
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <strong>Phone Number</strong>
+        </p>
+        <p style="font-size: 1.125rem; font-weight: 600">
+          {{ queue_entry.get_patient_phone() }}
+        </p>
+      </div>
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <strong>Queue Number</strong>
+        </p>
+        <p style="font-size: 1.125rem; font-weight: 600">
+          #{{ queue_entry.queue_number }}
+        </p>
+      </div>
+      <div>
+        <p
+          style="
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+          "
+        >
+          <strong>Patient Type</strong>
+        </p>
+        <p style="font-size: 1.125rem; font-weight: 600">
+          {% if queue_entry.patient_id %}
+          <span style="color: var(--primary-purple)">Registered</span>
+          {% else %}
+          <span style="color: var(--warning)">Walk-in</span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Prescription Form -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">
+      <i class="fas fa-file-prescription"></i> Prescription Details
+    </h2>
+  </div>
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+
+      <!-- Medication Details -->
+      <div class="form-group">
+        {{ form.medication_details.label }}
+        <div
+          style="
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+          "
+        >
+          Enter medication details, dosage, and instructions
+        </div>
+        {{ form.medication_details( class="form-control" + (" is-invalid" if
+        form.medication_details.errors else ""), placeholder="E.g., Amoxicillin
+        500mg - 1 tablet 3 times daily for 7 days\nParacetamol 500mg - 1 tablet
+        2 times daily", rows="8" ) }} {% if form.medication_details.errors %}
+        <div
+          style="color: var(--error); font-size: 0.875rem; margin-top: 0.5rem"
+        >
+          {% for error in form.medication_details.errors %}
+          <i class="fas fa-exclamation-circle"></i> {{ error }} {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Submit Buttons -->
+      <div
+        style="
+          display: flex;
+          gap: 1rem;
+          margin-top: 2rem;
+          padding-top: 1rem;
+          border-top: 1px solid var(--border-gray);
+        "
+      >
+        <button type="submit" class="btn btn-success btn-lg">
+          <i class="fas fa-check-circle"></i> Issue Prescription
+        </button>
+        <a
+          href="{{ url_for('doctor_dashboard') }}"
+          class="btn btn-secondary btn-lg"
+        >
+          <i class="fas fa-times"></i> Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Help Text -->
+<div
+  style="
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(67, 51, 147, 0.05);
+    border-left: 4px solid var(--primary-purple);
+    border-radius: 8px;
+  "
+>
+  <p style="margin: 0; color: var(--text-dark)">
+    <i
+      class="fas fa-info-circle"
+      style="color: var(--primary-purple); margin-right: 0.5rem"
+    ></i>
+    <strong>Note:</strong> The prescription will be sent to the pharmacy for
+    dispensing immediately after submission.
+  </p>
+</div>
+{% endblock %}

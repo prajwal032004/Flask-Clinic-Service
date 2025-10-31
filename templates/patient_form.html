@@ -1,0 +1,84 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Allo Health{% endblock
+%} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="fas fa-user-plus"></i> {{ title }}</h1>
+</div>
+
+<div class="card" style="max-width: 700px">
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      {{ form.name.label(class="form-label") }} {{
+      form.name(class="form-control", placeholder="Enter full name") }} {% if
+      form.name.errors %}
+      <div
+        style="color: var(--error); font-size: 0.875rem; margin-top: 0.25rem"
+      >
+        <i class="fas fa-exclamation-circle"></i> {{ form.name.errors[0] }}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.phone.label(class="form-label") }} {{
+      form.phone(class="form-control", placeholder="10-digit mobile number") }}
+      {% if form.phone.errors %}
+      <div
+        style="color: var(--error); font-size: 0.875rem; margin-top: 0.25rem"
+      >
+        <i class="fas fa-exclamation-circle"></i> {{ form.phone.errors[0] }}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      {{ form.email.label(class="form-label") }} {{
+      form.email(class="form-control", placeholder="Optional email address",
+      type="email") }}
+    </div>
+
+    <div class="grid grid-cols-2">
+      <div class="form-group">
+        {{ form.gender.label(class="form-label") }} {{
+        form.gender(class="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ form.age.label(class="form-label") }} {{
+        form.age(class="form-control", placeholder="Age in years",
+        type="number") }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      {{ form.address.label(class="form-label") }} {{
+      form.address(class="form-control", placeholder="Full address") }}
+    </div>
+
+    <div class="form-group">
+      {{ form.notes.label(class="form-label") }} {{
+      form.notes(class="form-control", placeholder="Medical notes, allergies,
+      etc...") }}
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 2rem">
+      <button type="submit" class="btn btn-primary" style="flex: 1">
+        <i class="fas fa-save"></i> Save
+      </button>
+      <a
+        href="{{ url_for('patients') }}"
+        class="btn btn-secondary"
+        style="flex: 1; text-align: center"
+      >
+        <i class="fas fa-times"></i> Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %} {% block title %}Prescription Details - Allo Health{%
+endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-prescription-bottle"></i> Prescription #{{ prescription.id
+    }}
+  </h1>
+</div>
+
+<!-- Prescription Card -->
+<div class="card" style="max-width: 700px">
+  <!-- Patient & Doctor Info -->
+  <div class="grid grid-cols-2" style="margin-bottom: 2rem">
+    <div>
+      <p
+        style="
+          color: var(--text-gray);
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+        "
+      >
+        <i class="fas fa-user"></i> Patient
+      </p>
+      <p style="font-weight: 600; font-size: 1.1rem">
+        {{ prescription.patient.name }}
+      </p>
+      <p style="color: var(--text-gray); font-size: 0.85rem">
+        {{ prescription.patient.phone }}
+      </p>
+    </div>
+    <div>
+      <p
+        style="
+          color: var(--text-gray);
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+        "
+      >
+        <i class="fas fa-user-md"></i> Doctor
+      </p>
+      <p style="font-weight: 600; font-size: 1.1rem">
+        Dr. {{ prescription.doctor.user.full_name }}
+      </p>
+      <p style="color: var(--text-gray); font-size: 0.85rem">
+        {{ prescription.doctor.specialization }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Prescription Details -->
+  <div
+    style="
+      background: var(--bg-soft);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    "
+  >
+    <p
+      style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.75rem"
+    >
+      <i class="fas fa-list"></i> Prescription Details
+    </p>
+    <p style="white-space: pre-wrap; line-height: 1.8">
+      {{ prescription.medication_details }}
+    </p>
+  </div>
+
+  <!-- Status & Dates -->
+  <div
+    class="grid grid-cols-2"
+    style="
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: var(--bg-soft);
+      border-radius: 12px;
+    "
+  >
+    <div>
+      <p
+        style="
+          color: var(--text-gray);
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+        "
+      >
+        <i class="fas fa-calendar"></i> Issued Date
+      </p>
+      <p style="font-weight: 600">
+        {{ prescription.created_at|datetime_format }}
+      </p>
+    </div>
+    <div>
+      <p
+        style="
+          color: var(--text-gray);
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+        "
+      >
+        <i class="fas fa-info-circle"></i> Status
+      </p>
+      <p>
+        <span class="badge badge-{{ prescription.status|status_badge }}"
+          >{{ prescription.status }}</span
+        >
+      </p>
+    </div>
+  </div>
+
+  <!-- Action -->
+  {% if prescription.status == 'Issued' %}
+  <form
+    method="POST"
+    action="{{ url_for('pharmacy_dispense', id=prescription.id) }}"
+  >
+    <button type="submit" class="btn btn-primary" style="width: 100%">
+      <i class="fas fa-check"></i> Mark as Dispensed
+    </button>
+  </form>
+  {% else %}
+  <p
+    style="
+      text-align: center;
+      color: var(--success);
+      padding: 1rem;
+      background: #d1fae5;
+      border-radius: 12px;
+    "
+  >
+    <i class="fas fa-check-circle"></i> Dispensed on {{
+    prescription.dispensed_at|datetime_format }}
+  </p>
+  {% endif %}
+</div>
+
+<div style="margin-top: 2rem">
+  <a href="{{ url_for('pharmacy') }}" class="btn btn-secondary"
+    ><i class="fas fa-arrow-left"></i> Back to Pharmacy</a
+  >
+</div>
+{% endblock %}

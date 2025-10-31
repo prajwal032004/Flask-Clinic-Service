@@ -1,0 +1,93 @@
+{% extends "base.html" %} {% block title %}{{ title }} - Allo Health{% endblock
+%} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="fas fa-user-plus"></i> {{ title }}</h1>
+</div>
+
+<div class="card" style="max-width: 800px">
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="grid grid-cols-2">
+      <div class="form-group">
+        {{ form.full_name.label(class="form-label") }} {{
+        form.full_name(class="form-control", placeholder="Full name") }}
+      </div>
+
+      <div class="form-group">
+        {{ form.emp_no.label(class="form-label") }} {{
+        form.emp_no(class="form-control", placeholder="Employee number") }}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2">
+      <div class="form-group">
+        {{ form.email.label(class="form-label") }} {{
+        form.email(class="form-control", placeholder="Email address",
+        type="email") }}
+      </div>
+
+      <div class="form-group">
+        {{ form.password.label(class="form-label") }} {{
+        form.password(class="form-control", placeholder="Password") }}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2">
+      <div class="form-group">
+        {{ form.specialization.label(class="form-label") }} {{
+        form.specialization(class="form-control", placeholder="e.g.,
+        Cardiologist") }}
+      </div>
+
+      <div class="form-group">
+        {{ form.gender.label(class="form-label") }} {{
+        form.gender(class="form-control") }}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2">
+      <div class="form-group">
+        {{ form.location.label(class="form-label") }} {{
+        form.location(class="form-control", placeholder="Clinic location") }}
+      </div>
+
+      <div class="form-group">
+        {{ form.phone.label(class="form-label") }} {{
+        form.phone(class="form-control", placeholder="Phone number") }}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2">
+      <div class="form-group">
+        {{ form.consultation_fee.label(class="form-label") }} {{
+        form.consultation_fee(class="form-control", placeholder="₹ Consultation
+        fee") }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      {{ form.availability.label(class="form-label") }} {{
+      form.availability(class="form-control", placeholder="e.g., Mon-Fri
+      09:00-17:00, Sat 09:00-13:00", rows="4") }}
+    </div>
+
+    <div style="display: flex; gap: 1rem">
+      <button type="submit" class="btn btn-primary" style="flex: 1">
+        <i class="fas fa-save"></i> Save
+      </button>
+      <a
+        href="{{ url_for('doctors') }}"
+        class="btn btn-secondary"
+        style="flex: 1; text-align: center"
+        ><i class="fas fa-times"></i> Cancel</a
+      >
+    </div>
+  </form>
+</div>
+{% endblock %}

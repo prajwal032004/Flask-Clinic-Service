@@ -1,0 +1,372 @@
+{% extends "base.html" %} {% block title %}Dashboard - Allo Health{% endblock %}
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+<style>
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(67, 51, 147, 0.15);
+  }
+
+  .stat-icon {
+    font-size: 2.5rem !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .action-button {
+    transition: all 0.2s;
+  }
+
+  .action-button:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .stat-value {
+      font-size: 1.75rem !important;
+    }
+
+    .grid-cols-4 {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .grid-cols-4 {
+      grid-template-columns: 1fr !important;
+    }
+
+    .stat-value {
+      font-size: 1.5rem !important;
+    }
+
+    .stat-card-header {
+      flex-direction: column !important;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="fas fa-chart-line"></i> Dashboard</h1>
+  <p class="page-subtitle">Welcome back! Here's what's happening today.</p>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-4" style="margin-bottom: 2rem">
+  <!-- Today's Appointments -->
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.today_appointments }}</div>
+        <div class="stat-label">Today's Appointments</div>
+      </div>
+      <div class="stat-icon">
+        <i
+          class="fas fa-calendar-check"
+          style="color: var(--primary-purple)"
+        ></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Queue Today -->
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.today_queue }}</div>
+        <div class="stat-label">Queue Today</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-users" style="color: var(--primary-purple)"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Waiting Queue -->
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.waiting_queue }}</div>
+        <div class="stat-label">Waiting</div>
+      </div>
+      <div class="stat-icon">
+        <i
+          class="fas fa-hourglass-end"
+          style="color: var(--primary-purple)"
+        ></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Doctors -->
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.active_doctors }}</div>
+        <div class="stat-label">Active Doctors</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-stethoscope" style="color: var(--primary-purple)"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-2">
+  <!-- Today's Appointments -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <i class="fas fa-calendar-alt"></i> Today's Appointments
+      </h2>
+      <a href="{{ url_for('appointments') }}" class="btn btn-sm btn-primary"
+        ><i class="fas fa-eye"></i> View All</a
+      >
+    </div>
+    <div class="card-body">
+      {% if today_appointments %}
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fas fa-clock"></i> Time</th>
+              <th><i class="fas fa-user"></i> Patient</th>
+              <th><i class="fas fa-user-md"></i> Doctor</th>
+              <th><i class="fas fa-info-circle"></i> Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for apt in today_appointments[:5] %}
+            <tr>
+              <td>
+                <strong
+                  >{{ apt.appointment_datetime.strftime('%H:%M') }}</strong
+                >
+              </td>
+              <td>{{ apt.patient.name }}</td>
+              <td>Dr. {{ apt.doctor.user.full_name }}</td>
+              <td>
+                <span class="badge badge-{{ apt.status|status_badge }}">
+                  {% if apt.status == 'Booked' %}
+                  <i class="fas fa-check-circle"></i>
+                  {% elif apt.status == 'Completed' %}
+                  <i class="fas fa-check"></i>
+                  {% elif apt.status == 'Canceled' %}
+                  <i class="fas fa-times-circle"></i>
+                  {% endif %} {{ apt.status }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="text-align: center; padding: 2rem; color: var(--text-gray)">
+        <i
+          class="fas fa-inbox"
+          style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5"
+        ></i>
+        <p>No appointments scheduled for today.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Current Queue -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-list-ol"></i> Current Queue</h2>
+      <a href="{{ url_for('queue') }}" class="btn btn-sm btn-primary"
+        ><i class="fas fa-sliders-h"></i> Manage</a
+      >
+    </div>
+    <div class="card-body">
+      {% if current_queue %}
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fas fa-hashtag"></i> #</th>
+              <th><i class="fas fa-user"></i> Patient</th>
+              <th><i class="fas fa-user-md"></i> Doctor</th>
+              <th><i class="fas fa-info-circle"></i> Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in current_queue[:5] %}
+            <tr>
+              <td>
+                <strong
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      var(--primary-purple),
+                      var(--primary-light)
+                    );
+                    color: white;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 20px;
+                    display: inline-block;
+                    font-size: 0.9rem;
+                  "
+                >
+                  {{ q.queue_number }}
+                </strong>
+              </td>
+              <td>{{ q.get_patient_name() }}</td>
+              <td>
+                {% if q.doctor %} Dr. {{ q.doctor.user.full_name }} {% else %}
+                <span class="badge badge-info"
+                  ><i class="fas fa-exclamation-circle"></i> Unassigned</span
+                >
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge badge-{{ q.status|status_badge }}">
+                  {% if q.status == 'Waiting' %}
+                  <i class="fas fa-clock"></i>
+                  {% elif q.status == 'With Doctor' %}
+                  <i class="fas fa-user-md"></i>
+                  {% elif q.status == 'Completed' %}
+                  <i class="fas fa-check"></i>
+                  {% endif %} {{ q.status }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="text-align: center; padding: 2rem; color: var(--text-gray)">
+        <i
+          class="fas fa-inbox"
+          style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5"
+        ></i>
+        <p>Queue is empty.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Row -->
+<div class="grid grid-cols-2" style="margin-top: 2rem">
+  <!-- Quick Actions -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; gap: 1rem">
+        <a
+          href="{{ url_for('patient_new') }}"
+          class="btn btn-primary action-button"
+          style="width: 100%; justify-content: center"
+        >
+          <i class="fas fa-user-plus"></i> Register Patient
+        </a>
+        <a
+          href="{{ url_for('queue_add') }}"
+          class="btn btn-primary action-button"
+          style="width: 100%; justify-content: center"
+        >
+          <i class="fas fa-plus-circle"></i> Add to Queue
+        </a>
+        <a
+          href="{{ url_for('appointment_new') }}"
+          class="btn btn-primary action-button"
+          style="width: 100%; justify-content: center"
+        >
+          <i class="fas fa-calendar-plus"></i> Book Appointment
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Summary -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <i class="fas fa-chart-pie"></i> Today's Summary
+      </h2>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; gap: 1rem; font-size: 0.95rem">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-gray);
+          "
+        >
+          <span
+            ><i
+              class="fas fa-check-circle"
+              style="color: var(--success); margin-right: 0.5rem"
+            ></i>
+            Completed</span
+          >
+          <strong style="font-size: 1.25rem; color: var(--success)"
+            >{{ stats.completed_today }}</strong
+          >
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-gray);
+          "
+        >
+          <span
+            ><i
+              class="fas fa-prescription-bottle"
+              style="color: var(--warning); margin-right: 0.5rem"
+            ></i>
+            Pending Prescriptions</span
+          >
+          <strong style="font-size: 1.25rem; color: var(--warning)"
+            >{{ stats.pending_prescriptions }}</strong
+          >
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <span
+            ><i
+              class="fas fa-user-circle"
+              style="color: var(--primary-purple); margin-right: 0.5rem"
+            ></i>
+            Total Patients</span
+          >
+          <strong style="font-size: 1.25rem; color: var(--primary-purple)"
+            >{{ stats.total_patients }}</strong
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

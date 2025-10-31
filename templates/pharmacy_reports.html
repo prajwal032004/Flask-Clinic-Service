@@ -1,0 +1,236 @@
+{% extends "base.html" %} {% block title %}Pharmacy Reports - Allo Health{%
+endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+{% endblock %} {% block content %}
+<div class="page-header">
+  <h1 class="page-title"><i class="fas fa-chart-bar"></i> Pharmacy Reports</h1>
+  <p class="page-subtitle">Analytics and performance insights</p>
+</div>
+
+<!-- Date Filter -->
+<div class="card" style="margin-bottom: 2rem">
+  <form
+    method="GET"
+    style="
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 1rem;
+      align-items: flex-end;
+    "
+  >
+    <div>
+      <label class="form-label">From Date</label>
+      <input
+        type="date"
+        name="date_from"
+        class="form-control"
+        value="{{ date_from }}"
+      />
+    </div>
+    <div>
+      <label class="form-label">To Date</label>
+      <input
+        type="date"
+        name="date_to"
+        class="form-control"
+        value="{{ date_to }}"
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-filter"></i> Filter
+    </button>
+    <a href="{{ url_for('pharmacy_reports') }}" class="btn btn-secondary"
+      ><i class="fas fa-redo"></i> Reset</a
+    >
+  </form>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-3" style="margin-bottom: 2rem">
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.total_prescriptions }}</div>
+        <div class="stat-label">Total Prescriptions</div>
+      </div>
+      <div class="stat-icon">
+        <i
+          class="fas fa-prescription-bottle"
+          style="color: var(--primary-purple)"
+        ></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.total_dispensed }}</div>
+        <div class="stat-label">Dispensed</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-check-circle" style="color: var(--primary-purple)"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">
+          {{ "%.1f"|format(stats.dispensing_rate) }}%
+        </div>
+        <div class="stat-label">Dispensing Rate</div>
+      </div>
+      <div class="stat-icon">
+        <i class="fas fa-percentage" style="color: var(--primary-purple)"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- More Stats -->
+<div class="grid grid-cols-3" style="margin-bottom: 2rem">
+  <div class="card">
+    <div style="text-align: center; padding: 2rem">
+      <div
+        style="
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: var(--primary-purple);
+        "
+      >
+        {{ stats.pending }}
+      </div>
+      <div style="color: var(--text-gray); margin-top: 0.5rem">
+        Pending Prescriptions
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="text-align: center; padding: 2rem">
+      <div
+        style="
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: var(--primary-purple);
+        "
+      >
+        {{ stats.unique_patients }}
+      </div>
+      <div style="color: var(--text-gray); margin-top: 0.5rem">
+        Unique Patients
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="text-align: center; padding: 2rem">
+      <div
+        style="
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: var(--primary-purple);
+        "
+      >
+        {{ stats.unique_doctors }}
+      </div>
+      <div style="color: var(--text-gray); margin-top: 0.5rem">Doctors</div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Doctors -->
+<div class="card" style="margin-bottom: 2rem">
+  <div class="card-header">
+    <h2 class="card-title">
+      <i class="fas fa-user-md"></i> Top Prescribing Doctors
+    </h2>
+  </div>
+  <div class="card-body">
+    {% if top_doctors %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-user-md"></i> Doctor</th>
+            <th><i class="fas fa-stethoscope"></i> Specialization</th>
+            <th><i class="fas fa-prescription-bottle"></i> Total</th>
+            <th><i class="fas fa-check-circle"></i> Dispensed</th>
+            <th><i class="fas fa-percentage"></i> Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doctor, total, dispensed in top_doctors %}
+          <tr>
+            <td><strong>Dr. {{ doctor.user.full_name }}</strong></td>
+            <td>{{ doctor.specialization }}</td>
+            <td><span class="badge badge-primary">{{ total }}</span></td>
+            <td><span class="badge badge-success">{{ dispensed }}</span></td>
+            <td>
+              <strong
+                >{{ "%.1f"|format((dispensed/total*100) if total > 0 else 0)
+                }}%</strong
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: var(--text-gray); padding: 2rem">
+      No data available
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Daily Distribution -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">
+      <i class="fas fa-calendar-alt"></i> Daily Distribution
+    </h2>
+  </div>
+  <div class="card-body">
+    {% if daily_data %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-calendar"></i> Date</th>
+            <th><i class="fas fa-prescription-bottle"></i> Issued</th>
+            <th><i class="fas fa-check-circle"></i> Dispensed</th>
+            <th><i class="fas fa-percentage"></i> Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for day in daily_data|dictsort(reverse=True) %}
+          <tr>
+            <td><strong>{{ day[0].strftime('%b %d, %Y') }}</strong></td>
+            <td>{{ day[1].issued }}</td>
+            <td>{{ day[1].dispensed }}</td>
+            <td>
+              <strong
+                >{{ "%.1f"|format((day[1].dispensed/day[1].issued*100) if
+                day[1].issued > 0 else 0) }}%</strong
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: var(--text-gray); padding: 2rem">
+      No data available for this period
+    </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

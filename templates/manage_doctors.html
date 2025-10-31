@@ -1,0 +1,53 @@
+{% extends "layout.html" %} {% block title %}Manage Doctors{% endblock %} {%
+block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Manage Doctor Accounts</h2>
+    <a href="{{ url_for('doctor_new') }}" class="btn btn-primary">Add Doctor</a>
+  </div>
+  <div class="card-body">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Employee No.</th>
+          <th>Specialization</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doctor in doctors %}
+        <tr>
+          <td>{{ doctor.name }}</td>
+          <td>{{ doctor.user.emp_no }}</td>
+          <td>{{ doctor.specialization }}</td>
+          <td>
+            <span
+              class="badge badge-{{ 'success' if doctor.is_active else 'danger' }}"
+              >{{ 'Active' if doctor.is_active else 'Inactive' }}</span
+            >
+          </td>
+          <td>
+            <a
+              href="{{ url_for('doctor_edit', id=doctor.id) }}"
+              class="btn btn-sm btn-secondary"
+              >Edit</a
+            >
+            <form
+              action="{{ url_for('doctor_toggle_active', id=doctor.id) }}"
+              method="POST"
+              style="display: inline"
+            >
+              <button type="submit" class="btn btn-sm btn-warning">
+                Toggle Status
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

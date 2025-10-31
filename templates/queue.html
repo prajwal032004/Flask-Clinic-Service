@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Queue Management - Allo Health{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  .queue-number {
+    background: linear-gradient(135deg, var(--primary-purple), var(--primary-light));
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 class="page-title"><i class="fas fa-list-ol"></i> Queue Management</h1>
+    <p class="page-subtitle">Manage patient queue</p>
+  </div>
+  <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{{ url_for('queue_add') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add to Queue</a>
+    <a href="{{ url_for('queue_export', date=queue_date.isoformat()) }}" class="btn btn-secondary"><i class="fas fa-download"></i> Export CSV</a>
+  </div>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-4" style="margin-bottom: 2rem;">
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total in Queue</div>
+      </div>
+      <div class="stat-icon"><i class="fas fa-users" style="color: var(--primary-purple);"></i></div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.waiting }}</div>
+        <div class="stat-label">Waiting</div>
+      </div>
+      <div class="stat-icon"><i class="fas fa-hourglass-end" style="color: var(--primary-purple);"></i></div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.in_progress }}</div>
+        <div class="stat-label">With Doctor</div>
+      </div>
+      <div class="stat-icon"><i class="fas fa-stethoscope" style="color: var(--primary-purple);"></i></div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div>
+        <div class="stat-value">{{ stats.completed }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-icon"><i class="fas fa-check-circle" style="color: var(--primary-purple);"></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- Queue Table -->
+<div class="card">
+  {% if queue_entries %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-hashtag"></i> #</th>
+            <th><i class="fas fa-user"></i> Patient</th>
+            <th><i class="fas fa-phone"></i> Phone</th>
+            <th><i class="fas fa-user-md"></i> Doctor</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
+            <th><i class="fas fa-exclamation"></i> Priority</th>
+            <th><i class="fas fa-cogs"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in queue_entries %}
+          <tr>
+            <td><span class="queue-number">{{ q.queue_number }}</span></td>
+            <td><strong>{{ q.get_patient_name() }}</strong></td>
+            <td>{{ q.get_patient_phone() }}</td>
+            <td>
+              {% if q.doctor %}
+                Dr. {{ q.doctor.user.full_name }}
+              {% else %}
+                <form method="POST" action="{{ url_for('queue_assign_doctor', id=q.id) }}" style="display: flex; gap: 0.5rem;">
+                  <select name="doctor_id" class="form-control" style="flex: 1;">
+                    <option value="0">Select Doctor...</option>
+                    {% for doc in doctors %}
+                      <option value="{{ doc.id }}">Dr. {{ doc.user.full_name }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-check"></i> Assign</button>
+                </form>
+              {% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('queue_update_status', id=q.id) }}" style="display: flex; gap: 0.5rem;">
+                <select name="status" class="form-control" style="flex: 1;">
+                  <option value="Waiting" {% if q.status == 'Waiting' %}selected{% endif %}>Waiting</option>
+                  <option value="With Doctor" {% if q.status == 'With Doctor' %}selected{% endif %}>With Doctor</option>
+                  <option value="Completed" {% if q.status == 'Completed' %}selected{% endif %}>Completed</option>
+                  <option value="Canceled" {% if q.status == 'Canceled' %}selected{% endif %}>Canceled</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-sync"></i></button>
+              </form>
+            </td>
+            <td>
+              <span class="badge {% if q.priority == 1 %}badge-danger{% else %}badge-info{% endif %}">
+                {% if q.priority == 1 %}<i class="fas fa-exclamation-triangle"></i> Urgent{% else %}<i class="fas fa-check"></i> Normal{% endif %}
+              </span>
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('queue_delete', id=q.id) }}" style="display: inline;" onsubmit="return confirm('Delete this queue entry?');">
+                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-gray);">
+      <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+      <p style="font-size: 1.1rem;">Queue is empty.</p>
+      <a href="{{ url_for('queue_add') }}" style="color: var(--primary-purple); font-weight: 600;"><i class="fas fa-plus-circle"></i> Add patient to queue</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

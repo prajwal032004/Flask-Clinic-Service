@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}Allo Health - Hospital Management System{% endblock %}
+    </title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-purple: #433393;
+        --primary-light: #6e42e5;
+        --primary-dark: #2d2366;
+        --accent-yellow: #ffc107;
+        --accent-teal: #14b8a6;
+        --bg-cream: #fffcf6;
+        --bg-soft: #fdf9f3;
+        --text-dark: #0f0f0f;
+        --text-gray: #6b7280;
+        --border-gray: #e5e5e5;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --info: #3b82f6;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background-color: var(--bg-cream);
+        color: var(--text-dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Poppins", sans-serif;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+
+      /* ===== NAVBAR ===== */
+      .navbar {
+        background: white;
+        border-bottom: 1px solid var(--border-gray);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .navbar-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 70px;
+      }
+
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-purple);
+        text-decoration: none;
+        font-family: "Poppins", sans-serif;
+        white-space: nowrap;
+      }
+
+      .navbar-brand svg {
+        width: 36px;
+        height: 36px;
+      }
+
+      .navbar-menu {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        list-style: none;
+        flex: 1;
+        margin-left: 2rem;
+      }
+
+      .navbar-link {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+      }
+
+      .navbar-link:hover {
+        color: var(--primary-purple);
+        background: rgba(67, 51, 147, 0.05);
+      }
+
+      .navbar-link.active {
+        color: var(--primary-purple);
+        font-weight: 600;
+        background: rgba(67, 51, 147, 0.08);
+      }
+
+      .navbar-link.active::after {
+        content: "";
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        background: var(--primary-purple);
+        border-radius: 50%;
+      }
+
+      .navbar-user {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-left: auto;
+      }
+
+      .user-info {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+      }
+
+      .user-role {
+        font-size: 0.8rem;
+        color: var(--text-gray);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--primary-purple),
+          var(--primary-light)
+        );
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .user-avatar:hover {
+        transform: scale(1.05);
+      }
+
+      .user-dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background: white;
+        border: 1px solid var(--border-gray);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        min-width: 200px;
+        margin-top: 0.5rem;
+        z-index: 1001;
+        overflow: hidden;
+      }
+
+      .dropdown-menu.active {
+        display: block;
+        animation: slideDown 0.2s ease-out;
+      }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        color: var(--text-dark);
+        text-decoration: none;
+        font-size: 0.9rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        transition: all 0.2s;
+      }
+
+      .dropdown-item:hover {
+        background: var(--bg-soft);
+        color: var(--primary-purple);
+        padding-left: 1.25rem;
+      }
+
+      .dropdown-divider {
+        height: 1px;
+        background: var(--border-gray);
+        margin: 0.25rem 0;
+      }
+
+      .menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--primary-purple);
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* ===== MAIN CONTENT ===== */
+      .main-content {
+        flex: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        width: 100%;
+      }
+
+      /* ===== PAGE HEADER ===== */
+      .page-header {
+        margin-bottom: 2rem;
+      }
+
+      .page-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--primary-purple);
+        margin-bottom: 0.5rem;
+      }
+
+      .page-subtitle {
+        font-size: 1rem;
+        color: var(--text-gray);
+      }
+
+      /* ===== BUTTONS ===== */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        font-family: "Inter", sans-serif;
+      }
+
+      .btn-primary {
+        background: var(--primary-purple);
+        color: white;
+        box-shadow: 0 2px 8px rgba(67, 51, 147, 0.2);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(67, 51, 147, 0.3);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: var(--primary-purple);
+        border: 2px solid var(--primary-purple);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(67, 51, 147, 0.05);
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: #059669;
+      }
+
+      .btn-warning {
+        background: var(--warning);
+        color: white;
+      }
+
+      .btn-warning:hover {
+        background: #d97706;
+      }
+
+      .btn-danger {
+        background: var(--error);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+
+      .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+      }
+
+      /* ===== CARDS ===== */
+      .card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-gray);
+        transition: all 0.2s;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-gray);
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .card-body {
+        padding: 0;
+      }
+
+      /* ===== STAT CARDS ===== */
+      .stat-card {
+        background: linear-gradient(135deg, #f4edf7, #ded3f4);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+      }
+
+      .stat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-purple);
+        font-size: 1.5rem;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-purple);
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 0.95rem;
+        color: var(--text-gray);
+        margin-top: 0.5rem;
+        font-weight: 500;
+      }
+
+      /* ===== ALERTS ===== */
+      .alert {
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+      }
+
+      .alert-warning {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+      }
+
+      .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+      }
+
+      .alert-info {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+      }
+
+      .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+      }
+
+      /* ===== FORMS ===== */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--border-gray);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-family: "Inter", sans-serif;
+        transition: all 0.2s;
+        background: white;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 3px rgba(67, 51, 147, 0.1);
+      }
+
+      .form-control::placeholder {
+        color: #9ca3af;
+      }
+
+      select.form-control {
+        cursor: pointer;
+      }
+
+      textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      /* ===== TABLES ===== */
+      .table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border-gray);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      thead {
+        background: var(--bg-soft);
+      }
+
+      th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 1rem;
+        border-top: 1px solid var(--border-gray);
+        font-size: 0.95rem;
+      }
+
+      tbody tr:hover {
+        background: rgba(67, 51, 147, 0.02);
+      }
+
+      /* ===== BADGES ===== */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .badge-primary {
+        background: rgba(67, 51, 147, 0.1);
+        color: var(--primary-purple);
+      }
+
+      .badge-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+
+      .badge-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+      }
+
+      .badge-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--error);
+      }
+
+      .badge-info {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+      }
+
+      /* ===== GRID ===== */
+      .grid {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .grid-cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      /* ===== FOOTER ===== */
+      footer {
+        background: white;
+        border-top: 1px solid var(--border-gray);
+        padding: 2rem 1.5rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        text-align: center;
+        color: var(--text-gray);
+        font-size: 0.9rem;
+      }
+
+      /* ===== FLASH MESSAGES ===== */
+      .flash-messages {
+        position: fixed;
+        top: 90px;
+        right: 20px;
+        z-index: 1100;
+        max-width: 400px;
+      }
+
+      /* ===== RESPONSIVE DESIGN ===== */
+      @media (max-width: 1024px) {
+        .navbar-menu {
+          gap: 0.1rem;
+        }
+
+        .navbar-link {
+          padding: 0.5rem 0.75rem;
+          font-size: 0.9rem;
+        }
+
+        .navbar-link span {
+          display: none;
+        }
+
+        .user-info {
+          display: none;
+        }
+
+        .navbar-user {
+          gap: 1rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar-menu {
+          display: none;
+          position: absolute;
+          top: 70px;
+          left: 0;
+          right: 0;
+          flex-direction: column;
+          background: white;
+          border-bottom: 1px solid var(--border-gray);
+          padding: 1rem;
+          gap: 0.5rem;
+          z-index: 999;
+        }
+
+        .navbar-menu.active {
+          display: flex;
+        }
+
+        .menu-toggle {
+          display: flex;
+        }
+
+        .navbar-user {
+          flex-direction: row;
+          gap: 0.5rem;
+        }
+
+        .user-info {
+          display: none;
+        }
+
+        .grid-cols-2,
+        .grid-cols-3,
+        .grid-cols-4 {
+          grid-template-columns: 1fr;
+        }
+
+        .page-title {
+          font-size: 1.75rem;
+        }
+
+        .main-content {
+          padding: 1rem;
+        }
+
+        .navbar-container {
+          height: 60px;
+          padding: 0 1rem;
+        }
+
+        .card-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .btn {
+          padding: 0.65rem 1.25rem;
+          font-size: 0.875rem;
+        }
+
+        table {
+          font-size: 0.85rem;
+        }
+
+        th,
+        td {
+          padding: 0.75rem;
+        }
+
+        .flash-messages {
+          right: 10px;
+          left: 10px;
+          max-width: none;
+          top: 75px;
+        }
+
+        .stat-value {
+          font-size: 2rem;
+        }
+
+        .navbar-brand {
+          font-size: 1.25rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .navbar-brand {
+          font-size: 1.1rem;
+        }
+
+        .navbar-brand svg {
+          width: 28px;
+          height: 28px;
+        }
+
+        .page-title {
+          font-size: 1.5rem;
+        }
+
+        .stat-card {
+          padding: 1rem;
+        }
+
+        .stat-value {
+          font-size: 1.75rem;
+        }
+
+        .stat-icon {
+          width: 40px;
+          height: 40px;
+          font-size: 1.25rem;
+        }
+      }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+  </head>
+
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <!-- Logo -->
+        {% if current_user.is_authenticated and current_user.role == 'doctor' %}
+        <a href="{{ url_for('doctor_dashboard') }}" class="navbar-brand">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"
+            />
+            <path
+              d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"
+              fill="white"
+            />
+          </svg>
+          <span>Allo Health</span>
+        </a>
+        {% elif current_user.is_authenticated and current_user.role ==
+        'pharmacist' %}
+        <a href="{{ url_for('pharmacy') }}" class="navbar-brand">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"
+            />
+            <path
+              d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"
+              fill="white"
+            />
+          </svg>
+          <span>Allo Health</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"
+            />
+            <path
+              d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"
+              fill="white"
+            />
+          </svg>
+          <span>Allo Health</span>
+        </a>
+        {% endif %}
+
+        <!-- Role-Based Navigation Menu -->
+        <ul class="navbar-menu" id="navbarMenu">
+          <!-- Admin Navigation -->
+          {% if current_user.is_authenticated and current_user.role == 'admin'
+          %}
+          <li>
+            <a
+              href="{{ url_for('dashboard') }}"
+              class="navbar-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+              title="Dashboard"
+            >
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('appointments') }}"
+              class="navbar-link {% if request.endpoint and 'appointment' in request.endpoint %}active{% endif %}"
+              title="Appointments"
+            >
+              <i class="fas fa-calendar-alt"></i>
+              <span>Appointments</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('queue') }}"
+              class="navbar-link {% if request.endpoint and 'queue' in request.endpoint %}active{% endif %}"
+              title="Queue"
+            >
+              <i class="fas fa-list-ol"></i>
+              <span>Queue</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('patients') }}"
+              class="navbar-link {% if request.endpoint and 'patient' in request.endpoint %}active{% endif %}"
+              title="Patients"
+            >
+              <i class="fas fa-users"></i>
+              <span>Patients</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('doctors') }}"
+              class="navbar-link {% if request.endpoint and 'doctor' in request.endpoint %}active{% endif %}"
+              title="Doctors"
+            >
+              <i class="fas fa-user-md"></i>
+              <span>Doctors</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('pharmacists') }}"
+              class="navbar-link {% if request.endpoint and 'pharmacist' in request.endpoint %}active{% endif %}"
+              title="Pharmacists"
+            >
+              <i class="fas fa-pills"></i>
+              <span>Pharmacists</span>
+            </a>
+          </li>
+          {% endif %}
+
+          <!-- Receptionist Navigation -->
+          {% if current_user.is_authenticated and current_user.role ==
+          'receptionist' %}
+          <li>
+            <a
+              href="{{ url_for('dashboard') }}"
+              class="navbar-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+              title="Dashboard"
+            >
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('appointments') }}"
+              class="navbar-link {% if request.endpoint and 'appointment' in request.endpoint %}active{% endif %}"
+              title="Appointments"
+            >
+              <i class="fas fa-calendar-alt"></i>
+              <span>Appointments</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('queue') }}"
+              class="navbar-link {% if request.endpoint and 'queue' in request.endpoint %}active{% endif %}"
+              title="Queue"
+            >
+              <i class="fas fa-list-ol"></i>
+              <span>Queue</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('patients') }}"
+              class="navbar-link {% if request.endpoint and 'patient' in request.endpoint %}active{% endif %}"
+              title="Patients"
+            >
+              <i class="fas fa-users"></i>
+              <span>Patients</span>
+            </a>
+          </li>
+          {% endif %}
+
+          <!-- Doctor Navigation -->
+          {% if current_user.is_authenticated and current_user.role == 'doctor'
+          %} {% endif %}
+
+          <!-- Pharmacist Navigation -->
+          {% if current_user.is_authenticated and current_user.role ==
+          'pharmacist' %}
+          <li>
+            <a
+              href="{{ url_for('pharmacy') }}"
+              class="navbar-link {% if request.endpoint == 'pharmacy' %}active{% endif %}"
+              title="Dashboard"
+            >
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('pharmacy_prescription_history') }}"
+              class="navbar-link {% if request.endpoint == 'pharmacy_prescription_history' %}active{% endif %}"
+              title="Prescription History"
+            >
+              <i class="fas fa-history"></i>
+              <span>History</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('pharmacy_reports') }}"
+              class="navbar-link {% if request.endpoint == 'pharmacy_reports' %}active{% endif %}"
+              title="Reports"
+            >
+              <i class="fas fa-chart-bar"></i>
+              <span>Reports</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('pharmacy_inventory') }}"
+              class="navbar-link {% if request.endpoint and 'inventory' in request.endpoint %}active{% endif %}"
+              title="Inventory"
+            >
+              <i class="fas fa-pills"></i>
+              <span>Inventory</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <!-- User Section -->
+        <div class="navbar-user">
+          {% if current_user.is_authenticated %}
+          <div class="user-info">
+            <div class="user-name">
+              {{ current_user.full_name or current_user.emp_no }}
+            </div>
+            <div class="user-role">
+              {% if current_user.role == 'admin' %}
+              <i class="fas fa-crown"></i>
+              <span>Administrator</span>
+              {% elif current_user.role == 'receptionist' %}
+              <i class="fas fa-headset"></i>
+              <span>Receptionist</span>
+              {% elif current_user.role == 'doctor' %}
+              <i class="fas fa-stethoscope"></i>
+              <span>Doctor</span>
+              {% elif current_user.role == 'pharmacist' %}
+              <i class="fas fa-pills"></i>
+              <span>Pharmacist</span>
+              {% else %}
+              <i class="fas fa-user"></i>
+              <span>Staff</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="user-dropdown" id="userDropdown">
+            <div class="user-avatar" onclick="toggleDropdown(event)">
+              {{ current_user.emp_no[0].upper() if current_user.emp_no else 'U'
+              }}
+            </div>
+
+            <div class="dropdown-menu" id="dropdownMenu">
+              <a href="{{ url_for('change_password') }}" class="dropdown-item">
+                <i class="fas fa-key"></i> Change Password
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="{{ url_for('logout') }}" class="dropdown-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Menu Toggle for Mobile -->
+        <button class="menu-toggle" onclick="toggleMenu(event)">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category if category in ['success', 'error', 'warning', 'info', 'danger'] else 'info' }}"
+      >
+        {% if category == 'success' %}
+        <i class="fas fa-check-circle"></i>
+        {% elif category == 'error' or category == 'danger' %}
+        <i class="fas fa-exclamation-circle"></i>
+        {% elif category == 'warning' %}
+        <i class="fas fa-exclamation-triangle"></i>
+        {% else %}
+        <i class="fas fa-info-circle"></i>
+        {% endif %} {{ message }}
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">{% block content %}{% endblock %}</main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <p>
+          <i class="fas fa-hospital"></i> &copy; 2025 Allo Health Management
+          System. All rights reserved. | Version 1.0
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Toggle user dropdown
+      function toggleDropdown(event) {
+        event.stopPropagation();
+        const menu = document.getElementById("dropdownMenu");
+        menu.classList.toggle("active");
+      }
+
+      // Toggle mobile menu
+      function toggleMenu(event) {
+        event.stopPropagation();
+        const menu = document.getElementById("navbarMenu");
+        menu.classList.toggle("active");
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (event) {
+        const dropdown = document.getElementById("userDropdown");
+        const menu = document.getElementById("dropdownMenu");
+        if (!event.target.closest(".user-dropdown")) {
+          menu.classList.remove("active");
+        }
+      });
+
+      // Close mobile menu when clicking outside
+      document.addEventListener("click", function (event) {
+        const navbar = document.querySelector(".navbar-container");
+        const menu = document.getElementById("navbarMenu");
+        if (!event.target.closest(".navbar-container")) {
+          menu.classList.remove("active");
+        }
+      });
+
+      // Auto-hide flash messages after 5 seconds
+      setTimeout(() => {
+        const alerts = document.querySelectorAll(".alert");
+        alerts.forEach((alert) => {
+          alert.style.transition = "opacity 0.3s";
+          setTimeout(() => {
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 300);
+          }, 4700);
+        });
+      }, 300);
+
+      // Mobile responsive navbar
+      function handleResponsive() {
+        const menu = document.getElementById("navbarMenu");
+        if (window.innerWidth <= 768) {
+          menu.classList.remove("active");
+        }
+      }
+
+      window.addEventListener("resize", handleResponsive);
+      handleResponsive();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
