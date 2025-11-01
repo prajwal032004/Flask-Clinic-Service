@@ -30,9 +30,6 @@ login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 login_manager.login_message_category = 'info'
 
-# ============================================================================
-# DATABASE MODELS
-# ============================================================================
 
 class User(UserMixin, db.Model):
     """User accounts for Admin/Receptionist, Doctors, and Pharmacists"""
@@ -183,7 +180,7 @@ class QueueEntry(db.Model):
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'), nullable=True, index=True)
     queue_number = db.Column(db.Integer, nullable=False)
     queue_date = db.Column(db.Date, nullable=False, index=True, default=date.today)
-    status = db.Column(db.String(20), default='Waiting', index=True)  # Waiting, With Doctor, Completed, Canceled
+    status = db.Column(db.String(20), default='Waiting', index=True) 
     priority = db.Column(db.Integer, default=0)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -211,13 +208,12 @@ class Prescription(db.Model):
     __tablename__ = 'prescriptions'
     
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=True, index=True)  # Changed to nullable=True
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=True, index=True)  
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'), nullable=False, index=True)
     queue_entry_id = db.Column(db.Integer, db.ForeignKey('queue_entries.id'), nullable=True)
     medication_details = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default='Issued', index=True)
     
-    # For walk-in patients without registration
     walk_in_name = db.Column(db.String(120))
     walk_in_phone = db.Column(db.String(20))
     
@@ -239,11 +235,6 @@ class Prescription(db.Model):
     def __repr__(self):
         return f'<Prescription {self.id} - {self.status}>'
 
-
-
-# ============================================================================
-# AUTHENTICATION & AUTHORIZATION
-# ============================================================================
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -293,11 +284,6 @@ def pharmacist_required(f):
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
-
-
-# ============================================================================
-# FORMS
-# ============================================================================
 
 class LoginForm(FlaskForm):
     """Login form"""
@@ -371,11 +357,6 @@ class PharmacistForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     email = StringField('Email', validators=[DataRequired(), Email()])
 
-
-# ============================================================================
-# UTILITY FUNCTIONS
-# ============================================================================
-
 def next_queue_number_for_today(doctor_id=None):
     """Generate next queue number for today"""
     today = date.today()
@@ -409,11 +390,6 @@ def get_dashboard_stats():
     
     return stats
 
-
-# ============================================================================
-# ERROR HANDLERS
-# ============================================================================
-
 @app.errorhandler(404)
 def not_found_error(error):
     """Handle 404 errors"""
@@ -431,11 +407,6 @@ def internal_error(error):
 def forbidden_error(error):
     """Handle 403 errors"""
     return render_template('errors/403.html'), 403
-
-
-# ============================================================================
-# AUTHENTICATION ROUTES
-# ============================================================================
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -505,11 +476,6 @@ def change_password():
             flash('Current password is incorrect.', 'danger')
     
     return render_template('change_password.html', form=form)
-
-
-# ============================================================================
-# ADMIN/RECEPTIONIST ROUTES
-# ============================================================================
 
 @app.route('/')
 @app.route('/dashboard')
@@ -1010,11 +976,6 @@ def queue_export():
     
     return response
 
-
-# ============================================================================
-# DOCTOR DASHBOARD ROUTES
-# ============================================================================
-
 @app.route('/doctor/dashboard')
 @login_required
 @doctor_required
@@ -1183,14 +1144,12 @@ def doctor_complete_consultation(id):
     
     if form.validate_on_submit():
         try:
-            # Create prescription - patient_id can now be NULL for walk-in patients
             prescription = Prescription(
-                patient_id=queue_entry.patient_id,  # Can be None for walk-ins
+                patient_id=queue_entry.patient_id,  
                 doctor_id=doctor.id,
                 queue_entry_id=queue_entry.id,
                 medication_details=form.medication_details.data,
                 status='Issued',
-                # Store walk-in details if no registered patient
                 walk_in_name=queue_entry.walk_in_name if not queue_entry.patient_id else None,
                 walk_in_phone=queue_entry.walk_in_phone if not queue_entry.patient_id else None
             )
@@ -1255,7 +1214,6 @@ def pharmacy_prescription_history():
     
     query = Prescription.query
     
-    # Search by patient name or phone
     if search:
         query = query.join(Patient, isouter=True).filter(
             or_(
@@ -1266,11 +1224,9 @@ def pharmacy_prescription_history():
             )
         )
     
-    # Filter by status
     if status_filter:
         query = query.filter(Prescription.status == status_filter)
     
-    # Filter by date range
     if date_from:
         try:
             from_date = datetime.strptime(date_from, '%Y-%m-%d').date()
@@ -1285,12 +1241,10 @@ def pharmacy_prescription_history():
         except:
             pass
     
-    # Paginate results
     prescriptions = query.order_by(
         Prescription.created_at.desc()
     ).paginate(page=page, per_page=20)
     
-    # Statistics
     stats = {
         'total_issued': Prescription.query.filter_by(status='Issued').count(),
         'total_dispensed': Prescription.query.filter_by(status='Dispensed').count(),
@@ -1308,7 +1262,6 @@ def pharmacy_prescription_history():
                          date_from=date_from,
                          date_to=date_to)
 
-# ===== PHARMACY REPORTS =====
 @app.route('/pharmacy/reports')
 @login_required
 @pharmacist_required
@@ -1356,7 +1309,6 @@ def pharmacy_reports():
         reverse=True
     )[:5]
     
-    # Daily distribution
     daily_data = {}
     for rx in prescriptions:
         day = rx.created_at.date()
@@ -1373,8 +1325,6 @@ def pharmacy_reports():
                          date_from=date_from,
                          date_to=date_to)
 
-
-# ===== PHARMACY INVENTORY =====
 @app.route('/pharmacy/inventory')
 @login_required
 @pharmacist_required
@@ -1444,8 +1394,6 @@ def edit_medicine(id):
     
     return render_template('edit_medicine.html', medicine=medicine)
 
-
-# ===== PRESCRIPTION PRINT/EXPORT =====
 @app.route('/pharmacy/prescription/<int:id>/print')
 @login_required
 @pharmacist_required
@@ -1464,15 +1412,12 @@ def validate_prescription(id):
     
     validation_issues = []
     
-    # Check if patient info is complete
     if not prescription.patient_id and not prescription.walk_in_name:
         validation_issues.append('Patient information missing')
     
-    # Check if medication details are complete
     if not prescription.medication_details:
         validation_issues.append('Medication details missing')
     
-    # Check if prescription is old (>30 days)
     days_old = (datetime.utcnow() - prescription.created_at).days
     if days_old > 30:
         validation_issues.append(f'Prescription is {days_old} days old - May need verification')
@@ -1518,11 +1463,6 @@ def pharmacy_prescription_view(id):
     
     return render_template('pharmacy_prescription_view.html',
                          prescription=prescription)
-
-
-# ============================================================================
-# PHARMACIST MANAGEMENT ROUTES (Admin only)
-# ============================================================================
 
 @app.route('/pharmacists')
 @login_required
@@ -1597,10 +1537,6 @@ def pharmacist_toggle_active(id):
         app.logger.error(f'Pharmacist toggle error: {str(e)}')
     
     return redirect(url_for('pharmacists'))
-
-# ============================================================================
-# APPOINTMENTS ROUTES
-# ============================================================================
 
 @app.route('/appointments')
 @login_required
@@ -1882,11 +1818,6 @@ def appointments_export():
     
     return response
 
-
-# ============================================================================
-# API ROUTES
-# ============================================================================
-
 @app.route('/api/patients/search')
 @login_required
 def api_patients_search():
@@ -1951,11 +1882,6 @@ def api_dashboard_stats():
     stats = get_dashboard_stats()
     return jsonify(stats)
 
-
-# ============================================================================
-# TEMPLATE FILTERS
-# ============================================================================
-
 @app.template_filter('datetime_format')
 def datetime_format(value, format='%b %d, %Y at %I:%M %p'):
     """Format datetime for display"""
@@ -2014,11 +1940,6 @@ def status_badge(status):
         'Dispensed': 'success'
     }
     return status_classes.get(status, 'secondary')
-
-
-# ============================================================================
-# DATABASE INITIALIZATION AND SEEDING
-# ============================================================================
 
 def init_database():
     """Initialize database with tables"""
@@ -2202,11 +2123,6 @@ def seed_data():
         print("  Password: pharm123")
         print("="*60 + "\n")
 
-
-# ============================================================================
-# CLI COMMANDS
-# ============================================================================
-
 @app.cli.command()
 def init_db():
     """Initialize the database."""
@@ -2261,11 +2177,6 @@ def create_admin():
     
     print(f"\n✓ Admin user '{full_name}' created successfully!")
     print(f"  Login with: {emp_no} / {password}\n")
-
-
-# ============================================================================
-# APPLICATION ENTRY POINT
-# ============================================================================
 
 if __name__ == '__main__':
     with app.app_context():
